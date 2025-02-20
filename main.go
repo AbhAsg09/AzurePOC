@@ -20,10 +20,7 @@ func startCreating(gormDB *gorm.DB) {
 func main() {
 	// Load configuration
 
-	cfg, err := config.LoadConfig("config.yaml")
-	if err != nil {
-		log.Fatalf("Failed to load config: %v", err)
-	}
+	cfg := config.LoadConfig()
 
 	// Initialize the database with configuration
 	db.InitDB(cfg)
