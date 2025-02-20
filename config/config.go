@@ -2,48 +2,59 @@ package config
 
 import (
 	"os"
-	"time"
-
-	"gopkg.in/yaml.v3"
+	"strconv"
 )
 
-// Config represents the structure of the config.yaml file
+// Config represents the application configuration
 type Config struct {
 	Server struct {
-		Port string `yaml:"port"`
-	} `yaml:"server"`
+		Port string
+	}
 
 	Database struct {
-		User     string `yaml:"user"`
-		Password string `yaml:"password"`
-		DBName   string `yaml:"dbname"`
-		Host     string `yaml:"host"`
-		Port     string `yaml:"port"`
-	} `yaml:"database"`
+		User     string
+		Password string
+		DBName   string
+		Host     string
+		Port     string
+	}
 
 	YouTube struct {
-		UploadTime int `yaml:"UploadTime"`
-	} `yaml:"youtube"`
+		UploadTime int
+	}
 }
 
-// LoadConfig loads configuration from the config.yaml file
-func LoadConfig(path string) (*Config, error) {
-	var cfg Config
+// LoadConfig loads configuration from environment variables
+func LoadConfig() *Config {
+	cfg := &Config{}
 
-	data, err := os.ReadFile(path)
-	if err != nil {
-		return nil, err
-	}
+	// Load server configuration
+	cfg.Server.Port = getEnv("SERVER_PORT", "8080")
 
-	err = yaml.Unmarshal(data, &cfg)
-	if err != nil {
-		return nil, err
-	}
+	// Load database configuration
+	cfg.Database.User = getEnv("DB_USER", "default_user")
+	cfg.Database.Password = getEnv("DB_PASSWORD", "default_password")
+	cfg.Database.DBName = getEnv("DB_NAME", "default_db")
+	cfg.Database.Host = getEnv("DB_HOST", "localhost")
+	cfg.Database.Port = getEnv("DB_PORT", "5432")
 
-	return &cfg, nil
+	return cfg
 }
 
-// GetFetchInterval returns the fetch interval as a time.Duration
-func (cfg *Config) GetFetchInterval() time.Duration {
-	return time.Duration(cfg.YouTube.UploadTime) * time.Second
+// Helper function to get environment variables with a fallback
+func getEnv(key, defaultValue string) string {
+	value, exists := os.LookupEnv(key)
+	if !exists {
+		return defaultValue
+	}
+	return value
+}
+
+// Helper function to parse integers with a fallback
+func parseInt(value string, fallback int) int {
+	intVal, err := strconv.Atoi(value)
+	if err != nil {
+		return fallback
+	}
+	return intVal
 }
