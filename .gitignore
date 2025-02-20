@@ -1,0 +1,11 @@
+# Configuration files
+config.yaml
+config/*.yaml
+
+# IDE and editor specific files
+.vscode/
+.idea/
+*.iml
+
+# GORM auto migration files (if applicable)
+gorm.db
